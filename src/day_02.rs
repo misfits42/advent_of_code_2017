@@ -21,7 +21,26 @@ fn solve_part_1(input: &Vec<Vec<u64>>) -> u64 {
 
 #[aoc(day2, part2)]
 fn solve_part_2(input: &Vec<Vec<u64>>) -> u64 {
-    unimplemented!();
+    let mut sum = 0;
+
+    for row in input {
+        // For each row, check each pair of values
+        for i in 0..row.len() {
+            for j in (i+1)..row.len() {
+                let first = row[i];
+                let second = row[j];
+                // Check if values divide evenly into one another - if one is a factor of the other
+                if first % second == 0 {
+                    sum += first / second;
+                    break;
+                } else if second % first == 0 {
+                    sum += second / first;
+                    break;
+                }
+            }
+        }
+    }
+    return sum;
 }
 
 #[cfg(test)]
@@ -33,5 +52,12 @@ mod tests {
         let input = generate_input(&std::fs::read_to_string("./input/2017/day2.txt").unwrap());
         let result = solve_part_1(&input);
         assert_eq!(45158, result);
+    }
+
+    #[test]
+    fn test_d02_p2_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day2.txt").unwrap());
+        let result = solve_part_2(&input);
+        assert_eq!(294, result);
     }
 }
