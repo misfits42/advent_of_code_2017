@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 pub enum Quadrant2D {
     PosPos, // x: +ve, y: -ve
     PosNeg, // x: +ve, y: -ve
@@ -7,7 +9,7 @@ pub enum Quadrant2D {
 }
 
 /// Represents a single point with discrete co-ordinates on a two-dimensions Euclidean surface.
-#[derive(Copy, Clone, Hash)]
+#[derive(Copy, Clone, Hash, PartialEq, Eq)]
 pub struct Point2D {
     x: i64,
     y: i64
@@ -49,5 +51,63 @@ impl Point2D {
 
     pub fn get_manhattan_dist(&self, other: Point2D) -> i64 {
         return (self.x - other.x).abs() + (self.y - other.y).abs();
+    }
+
+    /// Calculates the 2D points that surround the current point. Bounds checking for i64 underflow
+    /// and overflow is conducted - if either event would occur, the corresponding surrounding
+    /// point is not added.
+    pub fn get_surrounding_points(&self) -> Vec<Point2D> {
+        let mut output: Vec<Point2D> = vec![];
+        // Add points up, down, left, right first
+        if self.x < i64::MAX {
+            output.push(self.move_point(1, 0));
+        }
+        if self.x > i64::MIN {
+            output.push(self.move_point(-1, 0));
+        }
+        if self.y < i64::MAX {
+            output.push(self.move_point(0, 1));
+        }
+        if self.y > i64::MIN {
+            output.push(self.move_point(0, -1));
+        }
+        // Add points in diagonal directions
+        if self.x < i64::MAX && self.y < i64::MAX {
+            output.push(self.move_point(1, 1));
+        }
+        if self.x < i64::MAX && self.y > i64::MIN {
+            output.push(self.move_point(1, -1));
+        }
+        if self.x > i64::MIN && self.y < i64::MAX {
+            output.push(self.move_point(-1, 1));
+        }
+        if self.x > i64::MIN && self.y > i64::MIN {
+            output.push(self.move_point(-1, -1));
+        }
+        return output;
+    }
+}
+
+impl Ord for Point2D {
+    fn cmp(&self, other: &Self) -> Ordering {
+        if self.y < other.y {
+            return Ordering::Less;
+        } else if self.y == other.y {
+            if self.x < other.x {
+                return Ordering::Less;
+            } else if self.x == other.x {
+                return Ordering::Equal;
+            } else {
+                return Ordering::Greater;
+            }
+        } else {
+            return Ordering::Greater;
+        }
+    }
+}
+
+impl PartialOrd for Point2D {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        return Some(self.cmp(other));
     }
 }
