@@ -57,17 +57,45 @@ fn solve_part_1(input: &(HashMap::<String, Vec<String>>, HashMap<String, u64>)) 
 
 #[aoc(day7, part2)]
 fn solve_part_2(input: &(HashMap::<String, Vec<String>>, HashMap<String, u64>)) -> String {
-    unimplemented!();
+    let bottom_node = solve_part_1(input);
+    let mut weight_map = input.1.clone();
+    let total_weight = calculate_program_weight(&bottom_node, &input.0, &mut weight_map);
+    return String::from("");
 }
 
-fn calculate_program_weight(name: &String, rel_map: &HashMap<String, Vec<String>>, weight_map: &HashMap<String, u64>) -> u64 {
+fn calculate_program_weight(name: &String, rel_map: &HashMap<String, Vec<String>>, weight_map: &mut HashMap<String, u64>) -> u64 {
     if rel_map.get(name).unwrap().is_empty() {
         return *weight_map.get(name).unwrap();
     }
     let mut total_weight = 0;
+    let mut weights_seen = HashMap::<u64, Vec<String>>::new();
     total_weight += weight_map.get(name).unwrap();
     for child in rel_map.get(name).unwrap() {
-        total_weight += calculate_program_weight(child, rel_map, weight_map);
+        let child_weight = calculate_program_weight(child, rel_map, weight_map);
+        total_weight += child_weight;
+        if weights_seen.contains_key(&child_weight) {
+            weights_seen.get_mut(&child_weight).unwrap().push(child.to_string());
+        } else {
+            weights_seen.insert(child_weight, vec![child.to_string()]);
+        }
+    }
+    // weight_map.insert(name.to_string(), total_weight);
+    if weights_seen.keys().len() > 1 { // We have a mismatch
+        // Determine which node is the mismatch
+        for (key, value) in &weights_seen {
+            if value.len() == 1 {
+                let mut weights = weights_seen.keys().collect::<Vec<&u64>>();
+                weights.retain(|x| *x != key);
+                let good_weight = weights[0];
+                let delta = good_weight - key;
+                let correct_weight = weight_map.get(&value[0]).unwrap() + delta;
+                // weight_map.insert(value[0].to_string(), correct_weight);
+                //println!("Good weight: {}", good_weight);
+                //println!("Bad weight: {}", key);
+                println!("Correct weight {}: {}", value[0], correct_weight);
+            }
+        }
+        println!("{:?}", weights_seen);
     }
     return total_weight;
 }
