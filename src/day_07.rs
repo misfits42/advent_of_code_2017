@@ -59,3 +59,15 @@ fn solve_part_1(input: &(HashMap::<String, Vec<String>>, HashMap<String, u64>)) 
 fn solve_part_2(input: &(HashMap::<String, Vec<String>>, HashMap<String, u64>)) -> String {
     unimplemented!();
 }
+
+fn calculate_program_weight(name: &String, rel_map: &HashMap<String, Vec<String>>, weight_map: &HashMap<String, u64>) -> u64 {
+    if rel_map.get(name).unwrap().is_empty() {
+        return *weight_map.get(name).unwrap();
+    }
+    let mut total_weight = 0;
+    total_weight += weight_map.get(name).unwrap();
+    for child in rel_map.get(name).unwrap() {
+        total_weight += calculate_program_weight(child, rel_map, weight_map);
+    }
+    return total_weight;
+}
