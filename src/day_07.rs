@@ -84,14 +84,13 @@ fn calculate_program_weight(name: &String, rel_map: &HashMap<String, Vec<String>
         // Determine which node is the mismatch
         for (key, value) in &weights_seen {
             if value.len() == 1 {
+                // Calculate the good total weight out of all child nodes
                 let mut weights = weights_seen.keys().collect::<Vec<&u64>>();
                 weights.retain(|x| *x != key);
                 let good_weight = weights[0];
+                // Calculate the weight the relevant child node should be so all towers are balanced
                 let delta = good_weight - key;
                 let correct_weight = weight_map.get(&value[0]).unwrap() + delta;
-                // weight_map.insert(value[0].to_string(), correct_weight);
-                //println!("Good weight: {}", good_weight);
-                //println!("Bad weight: {}", key);
                 println!("Correct weight {}: {}", value[0], correct_weight);
             }
         }
