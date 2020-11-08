@@ -59,7 +59,7 @@ fn solve_part_1(input: &(HashMap::<String, Vec<String>>, HashMap<String, u64>)) 
 fn solve_part_2(input: &(HashMap::<String, Vec<String>>, HashMap<String, u64>)) -> String {
     let bottom_node = solve_part_1(input);
     let mut weight_map = input.1.clone();
-    let total_weight = calculate_program_weight(&bottom_node, &input.0, &mut weight_map);
+    let _total_weight = calculate_program_weight(&bottom_node, &input.0, &mut weight_map);
     return String::from("");
 }
 
