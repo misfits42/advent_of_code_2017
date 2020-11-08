@@ -139,6 +139,43 @@ fn solve_part_1(input: &(HashMap<String, i64>, Vec<Instruction>)) -> i64 {
 }
 
 #[aoc(day8, part2)]
-fn solve_part_2(_input: &(HashMap<String, i64>, Vec<Instruction>)) -> i64 {
-    unimplemented!();
+fn solve_part_2(input: &(HashMap<String, i64>, Vec<Instruction>)) -> i64 {
+    // Create a mutable copy of the register state
+    let mut registers = input.0.clone();
+    let mut max_overall = i64::MIN;
+    // Process each of the provided instructions
+    for instruct in &input.1 {
+        // Check instruction condition
+        let check_reg_val = *registers.get(&instruct.check_reg).unwrap();
+        let check_val = instruct.check_val;
+        let cond = instruct.cond;
+        let cond_valid = match cond {
+            Condition::Gt => check_reg_val > check_val,
+            Condition::Lt => check_reg_val < check_val,
+            Condition::Gte => check_reg_val >= check_val,
+            Condition::Eql => check_reg_val == check_val,
+            Condition::Lte => check_reg_val <= check_val,
+            Condition::Neq => check_reg_val != check_val
+        };
+        // If the condition is valid, perform the operation on the target register
+        if cond_valid {
+            let op = instruct.op;
+            let op_val = instruct.op_val;
+            let target_reg = instruct.target_reg.to_string();
+            match op {
+                Operation::Increment => {
+                    *registers.get_mut(&target_reg).unwrap() += op_val;
+                },
+                Operation::Decrement => {
+                    *registers.get_mut(&target_reg).unwrap() -= op_val;
+                }
+            }
+            // Check if resulting value is the highest register value seen yet
+            let result_val = *registers.get(&target_reg).unwrap();
+            if result_val > max_overall {
+                max_overall = result_val;
+            }
+        }
+    }
+    return max_overall;
 }
