@@ -26,7 +26,7 @@ impl Point3D {
         return self.z;
     }
 
-    pub fn move_point(&mut self, delta_x: i64, delta_y: i64, delta_z: i64) -> Point3D {
+    pub fn move_point(&self, delta_x: i64, delta_y: i64, delta_z: i64) -> Point3D {
         return Point3D::new(self.x + delta_x, self.y + delta_y, self.z + delta_z);
     }
 
