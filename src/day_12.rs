@@ -52,7 +52,28 @@ fn solve_part_1(input: &HashMap<String, HashSet<String>>) -> usize {
 
 #[aoc(day12, part2)]
 fn solve_part_2(input: &HashMap<String, HashSet<String>>) -> usize {
-    unimplemented!();
+    // Initialise count for total number of groups
+    let mut total_groups = 0;
+    // Make mutable collection used to mark off programs that have been grouped together
+    let mut remaining_progs = input.keys().map(|x| x.to_string()).collect::<HashSet<String>>();
+    loop {
+        // Check if we have exhausted all groups
+        if remaining_progs.len() == 0 {
+            return total_groups;
+        }
+        // We have at least one more group, so increment total count
+        total_groups += 1;
+        // Initialise current group
+        let mut group: HashSet<String> = HashSet::new();
+        let start_prog = remaining_progs.iter().next().unwrap();
+        group.insert(start_prog.to_string());
+        // Recursively process connections to determine contents of current group
+        find_group_conns(input, &start_prog, &mut group);
+        // Remove connected programs from remaining programs
+        for prog in group {
+            remaining_progs.remove(&prog);
+        }
+    }
 }
 
 /// Processes the program connections to determine connections within same group.
@@ -80,5 +101,12 @@ mod tests {
         let input = generate_input(&std::fs::read_to_string("./input/2017/day12.txt").unwrap());
         let result = solve_part_1(&input);
         assert_eq!(288, result);
+    }
+
+    #[test]
+    fn test_d12_p2_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day12.txt").unwrap());
+        let result = solve_part_2(&input);
+        assert_eq!(211, result);
     }
 }
