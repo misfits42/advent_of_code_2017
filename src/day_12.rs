@@ -55,7 +55,7 @@ fn solve_part_2(input: &HashMap<String, HashSet<String>>) -> usize {
     // Initialise count for total number of groups
     let mut total_groups = 0;
     // Make mutable collection used to mark off programs that have been grouped together
-    let mut remaining_progs = input.keys().map(|x| x.to_string()).collect::<HashSet<String>>();
+    let mut remaining_progs = input.keys().collect::<HashSet<&String>>();
     loop {
         // Check if we have exhausted all groups
         if remaining_progs.len() == 0 {
