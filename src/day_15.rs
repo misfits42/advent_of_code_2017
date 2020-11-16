@@ -30,12 +30,8 @@ impl Generator {
     }
 
     // Returns the last two bytes of the generator current value as a u16.
-    pub fn get_check_bytes(&self) -> u16 {
+    pub fn get_check_value(&self) -> u16 {
         return (self.current_value & 0xffff) as u16;
-    }
-
-    pub fn calculate_check_bytes(input: u64) -> u16 {
-        return (input & 0xffff) as u16;
     }
 }
 
@@ -72,7 +68,7 @@ fn solve_part_1(input: &(Generator, Generator)) -> u64 {
         generator_a.generate_next_value();
         generator_b.generate_next_value();
         // Compare check bytes from both generators - if matching, increment judge score
-        if generator_a.get_check_bytes() == generator_b.get_check_bytes() {
+        if generator_a.get_check_value() == generator_b.get_check_value() {
             judge_score += 1;
         }
     }
@@ -85,9 +81,9 @@ fn solve_part_2(input: &(Generator, Generator)) -> u64 {
     let mut pairs_observed = 0;
     let mut generator_a = input.0;
     let mut generator_b = input.1;
-    // Record acceptable values from each generator in a queue
-    let mut gen_a_values = VecDeque::<u64>::new();
-    let mut gen_b_values = VecDeque::<u64>::new();
+    // Record check bytes from acceptable values from each generator in a queue
+    let mut gen_a_check_values = VecDeque::<u16>::new();
+    let mut gen_b_check_values = VecDeque::<u16>::new();
     loop {
         // Terminate only when 5 million pairs have been compared
         if pairs_observed >= 5000000 {
@@ -97,19 +93,17 @@ fn solve_part_2(input: &(Generator, Generator)) -> u64 {
         generator_a.generate_next_value();
         generator_b.generate_next_value();
         // Check if current generator values are acceptable
-        let gen_a_value = generator_a.get_current_value();
-        let gen_b_value = generator_b.get_current_value();
-        if gen_a_value % 4 == 0 {
-            gen_a_values.push_back(gen_a_value);
+        if generator_a.get_current_value() % 4 == 0 {
+            gen_a_check_values.push_back(generator_a.get_check_value());
         }
-        if gen_b_value % 8 == 0 {
-            gen_b_values.push_back(gen_b_value);
+        if generator_b.get_current_value() % 8 == 0 {
+            gen_b_check_values.push_back(generator_b.get_check_value());
         }
         // Check if there is a pair of values available to compare
-        if !gen_a_values.is_empty() && !gen_b_values.is_empty() {
+        if !gen_a_check_values.is_empty() && !gen_b_check_values.is_empty() {
             // Retrieve next value from each generator to compare
-            let check_a = Generator::calculate_check_bytes(gen_a_values.pop_front().unwrap());
-            let check_b = Generator::calculate_check_bytes(gen_b_values.pop_front().unwrap());
+            let check_a = gen_a_check_values.pop_front();
+            let check_b = gen_b_check_values.pop_front();
             if check_a == check_b {
                 judge_score += 1;
             }
