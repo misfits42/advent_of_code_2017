@@ -9,7 +9,7 @@ pub enum Quadrant2D {
 }
 
 /// Represents a single point with discrete co-ordinates on a two-dimensions Euclidean surface.
-#[derive(Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Copy, Clone, Hash, PartialEq, Eq, Debug)]
 pub struct Point2D {
     x: i64,
     y: i64
@@ -53,10 +53,7 @@ impl Point2D {
         return (self.x - other.x).abs() + (self.y - other.y).abs();
     }
 
-    /// Calculates the 2D points that surround the current point. Bounds checking for i64 underflow
-    /// and overflow is conducted - if either event would occur, the corresponding surrounding
-    /// point is not added.
-    pub fn get_surrounding_points(&self) -> Vec<Point2D> {
+    pub fn get_adjacent_points(&self) -> Vec<Point2D> {
         let mut output: Vec<Point2D> = vec![];
         // Add points up, down, left, right first
         if self.x < i64::MAX {
@@ -71,6 +68,15 @@ impl Point2D {
         if self.y > i64::MIN {
             output.push(self.move_point(0, -1));
         }
+        return output;
+    }
+
+    /// Calculates the 2D points that surround the current point. Bounds checking for i64 underflow
+    /// and overflow is conducted - if either event would occur, the corresponding surrounding
+    /// point is not added.
+    pub fn get_surrounding_points(&self) -> Vec<Point2D> {
+        // Add points up, down, left, right first
+        let mut output: Vec<Point2D> = self.get_adjacent_points();
         // Add points in diagonal directions
         if self.x < i64::MAX && self.y < i64::MAX {
             output.push(self.move_point(1, 1));
