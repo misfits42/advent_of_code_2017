@@ -15,11 +15,16 @@ pub fn calculate_knot_hash(input: &str) -> Vec<u8> {
     // Calculate dense hash
     let dense_hash = calculate_dense_hash(&list);
     return dense_hash;
-}   
+}
 
 /// Performs a single round of the sparse hash (first stage of knot hash) algorithm introduced in
 /// AoC 2017 Day 10, Part 1.
-pub fn calculate_sparse_hash(list: &Vec<u8>, lengths: &Vec<u8>, current_pos: &mut usize, skip_size: &mut usize) -> Vec<u8>{
+pub fn calculate_sparse_hash(
+    list: &Vec<u8>,
+    lengths: &Vec<u8>,
+    current_pos: &mut usize,
+    skip_size: &mut usize,
+) -> Vec<u8> {
     let mut sparse_hash = list.clone();
     for length in lengths {
         let length = *length as usize;
