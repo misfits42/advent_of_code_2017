@@ -82,7 +82,7 @@ fn solve_part_1(input: &HashMap<u64, FirewallLayer>) -> u64 {
     let packet_pos = 0;
     // Initialise starting depth and determine depth at which packet has exited the firewall
     let mut current_depth = 0;
-    let mut exit_depth = input.keys().max().unwrap() + 1;
+    let exit_depth = input.keys().max().unwrap() + 1;
     while current_depth < exit_depth {
         // Check for collision at current depth
         if firewall_layers.contains_key(&current_depth) {
@@ -103,5 +103,65 @@ fn solve_part_1(input: &HashMap<u64, FirewallLayer>) -> u64 {
 
 #[aoc(day13, part2)]
 fn solve_part_2(input: &HashMap<u64, FirewallLayer>) -> u64 {
-    unimplemented!();
+    let packet_pos = 0; // Packet moves through top of each firewall layer
+    let mut delay = 0; // Current delay in picoseconds
+    let exit_depth = input.keys().max().unwrap() + 1; // Packet is out of firewall at this depth
+    let mut last_state = input.clone();
+    loop {
+        // Create copy of last state before move and delay by another picosecond
+        let mut current_state = last_state.clone();
+        if delay > 0 {
+            for (_depth, layer) in current_state.iter_mut() {
+                layer.move_scanner();
+            }
+        }
+        // Save copy of current state
+        last_state = current_state.clone();
+        // See if we can get through the firewall undetected
+        let mut current_depth = 0;
+        // If not detected, return the total delay used
+        let mut detected = false;
+        while current_depth < exit_depth {
+            // Check for collision at current depth
+            if current_state.contains_key(&current_depth) {
+                let layer = current_state.get(&current_depth).unwrap();
+                // If we are detected, stop processing
+                if layer.check_collision(packet_pos) {
+                    detected = true;
+                    break;
+                }
+            }
+            // Move scanner in each firewall layer with non-zero range
+            for (_depth, layer) in current_state.iter_mut() {
+                layer.move_scanner();
+            }
+            // Move packet to next depth
+            current_depth += 1;
+        }
+        // If detected, increase the delay and reattempt trip
+        if detected {
+            delay += 1;
+        } else { // Not detected with current delay setting - return successful delay value
+            return delay;
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_d13_p1_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day13.txt").unwrap());
+        let result = solve_part_1(&input);
+        assert_eq!(2160, result);
+    }
+
+    #[test]
+    fn test_d13_p2_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day13.txt").unwrap());
+        let result = solve_part_2(&input);
+        assert_eq!(3907470, result);
+    }
 }
