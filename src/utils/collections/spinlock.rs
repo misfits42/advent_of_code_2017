@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 pub struct Spinlock {
-    buffer: VecDeque<i64>,
+    buffer: VecDeque<usize>,
     skip_size: usize,
     cursor: usize
 }
@@ -24,7 +24,7 @@ impl Spinlock {
     /// Inserts the given value at the index after the current cursor location.
     /// 
     /// Cursor location is updated to the location after the previous value.
-    pub fn insert_after_cursor(&mut self, new_value: i64) {
+    pub fn insert_after_cursor(&mut self, new_value: usize) {
         // Update cursor location to the index of the new value inserted
         self.cursor += 1;
         if self.cursor == self.buffer.len() { // Check if new value is being inserted at end
@@ -35,14 +35,14 @@ impl Spinlock {
     }
 
     /// Returns the value in the location after the cursor.
-    pub fn peek_after_cursor(&self) -> i64 {
+    pub fn peek_after_cursor(&self) -> usize {
         let peek_index = (self.cursor + 1) % self.buffer.len();
         return self.buffer[peek_index];
     }
 
     /// Peeks at the value after the specified index. Returns None if the specified index is outside
     /// of the Spinlock buffer.
-    pub fn peek_after_index(&self, index: usize) -> Option<i64> {
+    pub fn peek_after_index(&self, index: usize) -> Option<usize> {
         if index >= self.buffer.len() {
             return None;
         } else {

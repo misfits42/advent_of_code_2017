@@ -6,7 +6,7 @@ fn generate_input(input: &str) -> usize {
 }
 
 #[aoc(day17, part1)]
-fn solve_part_1(input: &usize) -> i64 {
+fn solve_part_1(input: &usize) -> usize {
     // Create a new spinlock
     let skip_size = *input;
     let mut spinlock = Spinlock::new(skip_size);
@@ -20,18 +20,19 @@ fn solve_part_1(input: &usize) -> i64 {
 }
 
 #[aoc(day17, part2)]
-fn solve_part_2(input: &usize) -> i64 {
-    // Create a new spinlock
+fn solve_part_2(input: &usize) -> usize {
+    // Initialise values to keep track of result
+    let mut value_after_0: usize = 0;
     let skip_size = *input;
-    let mut spinlock = Spinlock::new(skip_size);
-    // Conduct insertions into spinlock
+    let mut cursor = 0;
     for value in 1..=50000000 {
-        if value % 10000 == 0 {
-            println!("Inserting value {} ...", value);
+        // Skip cursor forward within circular buffer and move to new insert index
+        cursor = (cursor + skip_size) % value + 1;
+        // Check if a new value would be inserted directly after the value 0 - which remains at
+        // index 0 due to implementation of the spinlock
+        if cursor == 1 {
+            value_after_0 = value;
         }
-        spinlock.skip_forward();
-        spinlock.insert_after_cursor(value);
     }
-    // Return the value in location after 0 value, which will be in index 0
-    return spinlock.peek_after_index(0).unwrap();
+    return value_after_0;
 }
