@@ -21,5 +21,17 @@ fn solve_part_1(input: &usize) -> i64 {
 
 #[aoc(day17, part2)]
 fn solve_part_2(input: &usize) -> i64 {
-    unimplemented!();
+    // Create a new spinlock
+    let skip_size = *input;
+    let mut spinlock = Spinlock::new(skip_size);
+    // Conduct insertions into spinlock
+    for value in 1..=50000000 {
+        if value % 10000 == 0 {
+            println!("Inserting value {} ...", value);
+        }
+        spinlock.skip_forward();
+        spinlock.insert_after_cursor(value);
+    }
+    // Return the value in location after 0 value, which will be in index 0
+    return spinlock.peek_after_index(0).unwrap();
 }

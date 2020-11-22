@@ -39,4 +39,14 @@ impl Spinlock {
         let peek_index = (self.cursor + 1) % self.buffer.len();
         return self.buffer[peek_index];
     }
+
+    /// Peeks at the value after the specified index. Returns None if the specified index is outside
+    /// of the Spinlock buffer.
+    pub fn peek_after_index(&self, index: usize) -> Option<i64> {
+        if index >= self.buffer.len() {
+            return None;
+        } else {
+            return Some(self.buffer[index]);
+        }
+    }
 }
