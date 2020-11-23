@@ -68,3 +68,15 @@ fn solve_part_1(instructions: &Vec<SoundComputerInstruction>) -> i64 {
 fn solve_part_2(_instructions: &Vec<SoundComputerInstruction>) -> i64 {
     unimplemented!();
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_d18_p1_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day18.txt").unwrap());
+        let result = solve_part_1(&input);
+        assert_eq!(3188, result);
+    }
+}

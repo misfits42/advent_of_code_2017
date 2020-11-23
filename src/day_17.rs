@@ -36,3 +36,22 @@ fn solve_part_2(input: &usize) -> usize {
     }
     return value_after_0;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_d17_p1_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day17.txt").unwrap());
+        let result = solve_part_1(&input);
+        assert_eq!(1642, result);
+    }
+
+    #[test]
+    fn test_d17_p2_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day17.txt").unwrap());
+        let result = solve_part_2(&input);
+        assert_eq!(33601318, result);
+    }
+}
