@@ -60,13 +60,39 @@ fn generate_input(input: &str) -> Vec<SoundComputerInstruction> {
 #[aoc(day18, part1)]
 fn solve_part_1(instructions: &Vec<SoundComputerInstruction>) -> i64 {
     let mut sound_comp = SoundComputer::new(instructions);
-    sound_comp.execute(true);
-    return sound_comp.last_recovered_freq().unwrap();
+    sound_comp.execute_single_mode();
+    return *sound_comp.last_recovered_freq().unwrap();
 }
 
 #[aoc(day18, part2)]
-fn solve_part_2(_instructions: &Vec<SoundComputerInstruction>) -> i64 {
-    unimplemented!();
+fn solve_part_2(instructions: &Vec<SoundComputerInstruction>) -> usize {
+    // Create two separate sound computers with program IDs initialise
+    let mut sound_comp_0 = SoundComputer::new(instructions);
+    sound_comp_0.update_register('p', 0);
+    let mut sound_comp_1 = SoundComputer::new(instructions);
+    sound_comp_1.update_register('p', 1);
+    loop {
+        // Check if stopping condition has been met
+        if sound_comp_0.is_halted() && sound_comp_1.is_halted() {
+            return sound_comp_1.snd_count();
+        } else if sound_comp_0.is_halted() && sound_comp_1.is_awaiting_input() {
+            return sound_comp_1.snd_count();
+        } else if sound_comp_0.is_awaiting_input() && sound_comp_1.is_halted() {
+            return sound_comp_1.snd_count();
+        } else if sound_comp_0.is_awaiting_input() && sound_comp_1.is_awaiting_input() {
+            return sound_comp_1.snd_count();
+        }
+        // Execute next instruction for both SoundComputers and store output
+        let output_from_0 = sound_comp_0.execute_double_mode();
+        let output_from_1 = sound_comp_1.execute_double_mode();
+        // Push input values to both SoundComputers if available
+        if output_from_1.is_some() {
+            sound_comp_0.push_input(output_from_1.unwrap());
+        }
+        if output_from_0.is_some() {
+            sound_comp_1.push_input(output_from_0.unwrap());
+        }
+    }
 }
 
 #[cfg(test)]
@@ -78,5 +104,12 @@ mod tests {
         let input = generate_input(&std::fs::read_to_string("./input/2017/day18.txt").unwrap());
         let result = solve_part_1(&input);
         assert_eq!(3188, result);
+    }
+
+    #[test]
+    fn test_d18_p2_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day18.txt").unwrap());
+        let result = solve_part_2(&input);
+        assert_eq!(7112, result);
     }
 }
