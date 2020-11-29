@@ -7,7 +7,7 @@ enum TrackSegment {
     Vertical,
     Horizontal,
     Intersection,
-    Continue
+    Continue,
 }
 
 #[aoc_generator(day19)]
@@ -26,16 +26,20 @@ fn generate_input(input: &str) -> (HashMap<Point2D, TrackSegment>, HashMap<Point
             if c == '\r' || c == '\n' {
                 break;
             }
-            if c == '|' { // Vertical track segment
+            if c == '|' {
+                // Vertical track segment
                 let loc = Point2D::new(x, y);
                 track_locs.insert(loc, TrackSegment::Vertical);
-            } else if c == '-' { // Horizontal track segment
+            } else if c == '-' {
+                // Horizontal track segment
                 let loc = Point2D::new(x, y);
                 track_locs.insert(loc, TrackSegment::Horizontal);
-            } else if c == '+' { // Track intersection
+            } else if c == '+' {
+                // Track intersection
                 let loc = Point2D::new(x, y);
                 track_locs.insert(loc, TrackSegment::Intersection);
-            } else if c.is_ascii_alphabetic() { // Letter location
+            } else if c.is_ascii_alphabetic() {
+                // Letter location
                 let loc = Point2D::new(x, y);
                 letter_locs.insert(loc, c);
                 track_locs.insert(loc, TrackSegment::Continue);
@@ -62,8 +66,10 @@ fn generate_input(input: &str) -> (HashMap<Point2D, TrackSegment>, HashMap<Point
                 }
             }
             // Check if there is a continue section where an intersection segment should be
-            if adjacent_count == 2 && adj_segment_locs[0].get_x() != adj_segment_locs[1].get_x() &&
-                    adj_segment_locs[0].get_y() != adj_segment_locs[1].get_y() {
+            if adjacent_count == 2
+                && adj_segment_locs[0].get_x() != adj_segment_locs[1].get_x()
+                && adj_segment_locs[0].get_y() != adj_segment_locs[1].get_y()
+            {
                 replace_with_intersection.push(*loc);
             }
         } else {
@@ -91,11 +97,27 @@ fn generate_input(input: &str) -> (HashMap<Point2D, TrackSegment>, HashMap<Point
 
 #[aoc(day19, part1)]
 fn solve_part_1(input: &(HashMap<Point2D, TrackSegment>, HashMap<Point2D, char>)) -> String {
+    let (letters_seen, _steps_taken) = conduct_packet_moves(input);
+    return letters_seen;
+}
+
+#[aoc(day19, part2)]
+fn solve_part_2(input: &(HashMap<Point2D, TrackSegment>, HashMap<Point2D, char>)) -> u64 {
+    let (_letters_seen, steps_taken) = conduct_packet_moves(input);
+    return steps_taken;
+}
+
+/// Conducts the movement of the packet through the map, recording the letters seen and total
+/// number of steps taken.
+fn conduct_packet_moves(
+    locations: &(HashMap<Point2D, TrackSegment>, HashMap<Point2D, char>),
+) -> (String, u64) {
     // Get copy of track segment and letter locations
-    let track_locs = input.0.clone();
-    let letter_locs = input.1.clone();
+    let track_locs = locations.0.clone();
+    let letter_locs = locations.1.clone();
     // Initialise starting variables
     let mut letters_seen = String::new();
+    let mut steps_taken = 0;
     let mut direction = CardinalDirection::South;
     // Determine starting location
     let mut top_row = track_locs.keys().collect::<Vec<&Point2D>>();
@@ -123,33 +145,37 @@ fn solve_part_1(input: &(HashMap<Point2D, TrackSegment>, HashMap<Point2D, char>)
         }
         // Move to next position
         current_loc = current_loc.move_point_in_direction(&direction);
+        steps_taken += 1;
         // Check if track exists at current location - if not, we have reached the end of the map
         if !track_locs.contains_key(&current_loc) {
             break;
         }
     }
-    return letters_seen;
+    return (letters_seen, steps_taken);
 }
 
 /// Calculates the locations to the left and right of the given location, with the packet travelling
 /// in the specified direction.
-fn calculate_left_and_right_locations(loc: &Point2D, direction: &CardinalDirection) -> (Point2D, Point2D) {
+fn calculate_left_and_right_locations(
+    loc: &Point2D,
+    direction: &CardinalDirection,
+) -> (Point2D, Point2D) {
     match direction {
         CardinalDirection::North => {
             let left = loc.move_point(-1, 0);
             let right = loc.move_point(1, 0);
             (left, right)
-        },
+        }
         CardinalDirection::East => {
             let left = loc.move_point(0, -1);
             let right = loc.move_point(0, 1);
             (left, right)
-        },
+        }
         CardinalDirection::South => {
             let left = loc.move_point(1, 0);
             let right = loc.move_point(-1, 0);
             (left, right)
-        },
+        }
         CardinalDirection::West => {
             let left = loc.move_point(0, 1);
             let right = loc.move_point(0, -1);
@@ -157,12 +183,6 @@ fn calculate_left_and_right_locations(loc: &Point2D, direction: &CardinalDirecti
         }
     }
 }
-
-#[aoc(day19, part2)]
-fn solve_part_2(input: &(HashMap<Point2D, TrackSegment>, HashMap<Point2D, char>)) -> String {
-    unimplemented!();
-}
-
 
 #[cfg(test)]
 mod tests {
