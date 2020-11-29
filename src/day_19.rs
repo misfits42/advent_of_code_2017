@@ -194,4 +194,11 @@ mod tests {
         let result = solve_part_1(&input);
         assert_eq!("QPRYCIOLU", result);
     }
+
+    #[test]
+    fn test_d19_p2_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day19.txt").unwrap());
+        let result = solve_part_2(&input);
+        assert_eq!(16162, result);
+    }
 }
