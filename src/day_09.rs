@@ -56,3 +56,22 @@ fn solve_part_2(input: &Vec<char>) -> u64 {
     process_stream(input, &mut index, 0, &mut total_score, &mut garb_count);
     return garb_count;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_d09_p1_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day9.txt").unwrap());
+        let result = solve_part_1(&input);
+        assert_eq!(16869, result);
+    }
+
+    #[test]
+    fn test_d09_p2_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day9.txt").unwrap());
+        let result = solve_part_2(&input);
+        assert_eq!(7284, result);
+    }
+}
