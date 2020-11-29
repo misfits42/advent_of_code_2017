@@ -179,3 +179,22 @@ fn solve_part_2(input: &(HashMap<String, i64>, Vec<Instruction>)) -> i64 {
     }
     return max_overall;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_d08_p1_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day8.txt").unwrap());
+        let result = solve_part_1(&input);
+        assert_eq!(4902, result);
+    }
+
+    #[test]
+    fn test_d08_p2_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day8.txt").unwrap());
+        let result = solve_part_2(&input);
+        assert_eq!(7037, result);
+    }
+}
