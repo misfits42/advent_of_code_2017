@@ -77,9 +77,6 @@ fn generate_input(input: &str) -> HashMap<u64, Particle3D> {
 fn solve_part_1(particles: &HashMap<u64, Particle3D>) -> u64 {
     let mut particles = particles.clone();
     let mut total_ticks = 0;
-    let particle_nums = particles.keys().map(|x| *x).collect::<Vec<u64>>();
-    let total_particles = particles.len();
-    println!("[+] Total particles: {}", total_particles);
     // Record the distances of particles from origin after each tick
     let mut manhattan_dists: HashMap<u64, Vec<i64>> = HashMap::new();
     for num in particles.keys() {
@@ -102,10 +99,63 @@ fn solve_part_1(particles: &HashMap<u64, Particle3D>) -> u64 {
                 distance_groups.get_mut(&distance_group).unwrap().push(*num);
             }
             // Check if all particles have a increasing rate of movement away from origin
-            if check_particles_for_only_increasing_distance(total_particles, &distance_groups) {
+            if check_particles_for_only_increasing_distance(particles.len(), &distance_groups) {
                 if distance_groups.get(&DistanceGroup::IncreasingSame).unwrap().len() == 1 {
                     return distance_groups.get(&DistanceGroup::IncreasingSame).unwrap()[0];
                 }
+            }
+        }
+        total_ticks += 1;
+    }
+}
+
+#[aoc(day20, part2)]
+fn solve_part_2(particles: &HashMap<u64, Particle3D>) -> u64 {
+    let mut particles = particles.clone();
+    let mut total_ticks = 0;
+    // Record the distances of particles from origin after each tick
+    let mut manhattan_dists: HashMap<u64, Vec<i64>> = HashMap::new();
+    for num in particles.keys() {
+        manhattan_dists.insert(*num, vec![]);
+    }
+    loop {
+        // Record position of each particle after tick
+        let mut particle_positions: HashMap<(i64, i64, i64), Vec<u64>> = HashMap::new();
+        // Conduct tick
+        for (num, particle) in particles.iter_mut() {
+            particle.update_pos_and_vel();
+            // Record resulting position of particle
+            let pos = particle.get_position_3d();
+            if particle_positions.contains_key(&pos) {
+                particle_positions.get_mut(&pos).unwrap().push(*num);
+            } else {
+                particle_positions.insert(pos, vec![*num]);
+            }
+            // Record resulting Manhattan distance of particle from origin
+            let manhattan_dist = particle.get_manhattan_distance((0, 0, 0));
+            manhattan_dists.get_mut(&num).unwrap().push(manhattan_dist);
+        }
+        // Remove particles that have collided from particle list and manhattan distance records
+        for (_pos, nums) in particle_positions {
+            if nums.len() > 1 {
+                for num in nums {
+                    particles.remove(&num);
+                    manhattan_dists.remove(&num);
+                }
+            }
+        }
+        // Determine distance group for the particle based on change in distance from (0,0,0)
+        if total_ticks >= 4 {
+            let mut distance_groups = generate_distance_group_records();
+            for (num, dists) in manhattan_dists.iter() {
+                // Calculate deltas and distance group
+                let dist_deltas = calculate_distance_deltas(dists);
+                let distance_group = DistanceGroup::determine_distance_group(dist_deltas);
+                distance_groups.get_mut(&distance_group).unwrap().push(*num);
+            }
+            // Assume no more collisions if remaining particles are all moving away from (0,0,0)
+            if check_particles_for_only_increasing_distance(particles.len(), &distance_groups) {
+                return particles.len() as u64;
             }
         }
         total_ticks += 1;
@@ -139,7 +189,21 @@ fn generate_distance_group_records() -> HashMap<DistanceGroup, Vec<u64>> {
     return records;
 }
 
-#[aoc(day20, part2)]
-fn solve_part_2(particles: &HashMap<u64, Particle3D>) -> u64 {
-    unimplemented!();
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_d20_p1_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day20.txt").unwrap());
+        let result = solve_part_1(&input);
+        assert_eq!(376, result);
+    }
+
+    #[test]
+    fn test_d20_p2_proper() {
+        let input = generate_input(&std::fs::read_to_string("./input/2017/day20.txt").unwrap());
+        let result = solve_part_2(&input);
+        assert_eq!(574, result);
+    }
 }

@@ -16,7 +16,7 @@ impl Particle3D {
     }
 
     /// Returns the 3D point representing the location of the particle.
-    pub fn get_position_d(&self) -> (i64, i64, i64) {
+    pub fn get_position_3d(&self) -> (i64, i64, i64) {
         return self.position;
     }
 
